@@ -1,0 +1,1 @@
+adb logcat -s Unity | python stdPrint.py
