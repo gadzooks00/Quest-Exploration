@@ -55,7 +55,7 @@ public class rendering : MonoBehaviour
         {
             oShelves.SetActive(false);
             guideArrow.SetActive(false);
-            Debug.Log("Finished! Time = " + (Time.fixedTime - timeStart));
+            Debug.Log("!!!Finished! Time = " + (Time.fixedTime - timeStart));
             isActiveState = false;
         }
     }
