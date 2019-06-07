@@ -11,6 +11,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <fstream>
 
 typedef mel::Keyboard KB;
 using mel::Key;
@@ -39,17 +40,21 @@ int main(int argc, char const *argv[])
 
     int cycleTime = 100;
     float tactorValues[] = {0.0, 0.0, 0.0, 0.0};
+    ofstream outFile;
+    outFile.open("dataOut.txt", ios::out);
     while (!KB::is_key_pressed(Key::Escape))
     {
         getline(cin, input_line);
         input_line = filterLog(input_line);
         if(input_line.find("!!!") != string::npos)
         {
+            input_line.erase(0,3);
             for(int i = 0; i < 4; i++)
             {
                 tactorValues[i] = 0;
             }
             mel::print(input_line);
+            outFile << input_line + "\n";
         }
         if (input_line.length() > 0)
         {
@@ -76,6 +81,7 @@ int main(int argc, char const *argv[])
         }
     }
     tfx::finalize();
+    outFile.close();
     return 0;
 }
 string filterLog(string logLine)
