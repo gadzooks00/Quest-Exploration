@@ -36,9 +36,9 @@ public class rendering : MonoBehaviour
             {
                 oShelves.SetActive(true);
                 timeStart = Time.fixedTime;
-                Debug.Log("Time = " + timeStart);
+                Debug.Log("!!!Time = " + timeStart);
                 setCube();
-                Debug.Log("Cube is " + desCube);
+                Debug.Log("!!!Cube is " + desCube);
                 guideArrow.SetActive(true);
                 isActiveState = true;
                 changedThisPress = true;
