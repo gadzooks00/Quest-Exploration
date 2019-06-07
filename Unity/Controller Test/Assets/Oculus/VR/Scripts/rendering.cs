@@ -8,6 +8,7 @@ public class rendering : MonoBehaviour
     GameObject oShelves, guideArrow;
     float timeStart;
     public static GameObject desCube;
+    public static bool cubeFound;
     bool isActiveState, changedThisPress;
     void setCube()
     {
@@ -41,6 +42,7 @@ public class rendering : MonoBehaviour
                 guideArrow.SetActive(true);
                 isActiveState = true;
                 changedThisPress = true;
+                cubeFound = false;
             }
             else
             {
@@ -51,11 +53,11 @@ public class rendering : MonoBehaviour
         {
             changedThisPress = false;
         }
-        if(desCube == null && isActiveState == true)
+        if(cubeFound && isActiveState == true)
         {
             oShelves.SetActive(false);
             guideArrow.SetActive(false);
-            Debug.Log("!!!Finished! Time = " + (Time.fixedTime - timeStart));
+            Debug.Log("!!!Finished! Time = " + (Time.fixedTime - timeStart) + (desCube == null ? "" : "Wrong Cube"));
             isActiveState = false;
         }
     }
