@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     mel::Clock kbClock;
     string input_line;
 
-    int cycleTime = 100;
+    int cycleTime = 500;
     float tactorValues[] = {0.0, 0.0, 0.0, 0.0};
     ofstream outFile;
     outFile.open("dataOut.txt", ios::out);
