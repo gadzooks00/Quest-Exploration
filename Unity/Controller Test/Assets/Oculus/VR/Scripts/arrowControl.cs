@@ -71,12 +71,23 @@ public class arrowControl : MonoBehaviour
         //calculate desired tactor values
         if (Options.enableVibrotactorFeedback)
         {
-            if (!Options.enableActiveButton || !OVRInput.Get(OVRInput.Button.Two))
+            if (Options.enableActiveButton && OVRInput.Get(OVRInput.Button.Two))
+            {
+                if (vecMag < Options.correctDistance)
+                {
+                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 1;
+                }
+                else
+                {
+                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0.1f;
+                }
+            }
+            else
             {
                 heading = transform.localEulerAngles.y;
                 if (heading > 355 || heading < 5)
                 {
-                    tactorValues[0] = tactorValues[2] = vertConstant * strength;
+                    tactorValues[0] = tactorValues[2] = vertConstant * strength * 2;
                 }
                 else
                 {
@@ -97,7 +108,7 @@ public class arrowControl : MonoBehaviour
                     heading = transform.localEulerAngles.x;
                     if (heading > 355 || heading < 5)
                     {
-                        tactorValues[1] = tactorValues[3] = horiConstant * strength;
+                        tactorValues[1] = tactorValues[3] = horiConstant * strength * 2;
                     }
                     else
                     {
@@ -118,7 +129,7 @@ public class arrowControl : MonoBehaviour
                     heading = transform.localEulerAngles.z;
                     if (heading > 355 || heading < 5)
                     {
-                        tactorValues[1] = tactorValues[3] = horiConstant * strength;
+                        tactorValues[1] = tactorValues[3] = horiConstant * strength * 2;
                     }
                     else
                     {
@@ -134,17 +145,6 @@ public class arrowControl : MonoBehaviour
                         }
                     }
 
-                }
-            }
-            else
-            {
-                if (vecMag < Options.correctDistance)
-                {
-                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 1;
-                }
-                else
-                {
-                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0.1f;
                 }
             }
             //send tactor values to computer
