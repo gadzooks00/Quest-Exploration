@@ -45,7 +45,6 @@ int main(int argc, char const *argv[])
     while (!KB::is_key_pressed(Key::Escape))
     {
         getline(cin, input_line);
-        input_line = filterLog(input_line);
         if(input_line.find("!!!") != string::npos)
         {
             input_line.erase(0,3);
@@ -56,9 +55,11 @@ int main(int argc, char const *argv[])
             mel::print(input_line);
             outFile << input_line + "\n";
         }
+		input_line = filterLog(input_line);
         if (input_line.length() > 0)
         {
             mel::print(input_line);
+			outFile << input_line + "\n";
             for (int i = 0; i < 4; i++)
             {
                 size_t commaPos = input_line.find(",");
