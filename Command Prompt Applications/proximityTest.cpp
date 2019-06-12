@@ -36,11 +36,11 @@ int main(int argc, char const *argv[])
     mel::print(info.index);
     mel::print(info.maxChannels);
 
-    mel::Clock vClock, hClock;
+    mel::Clock kbClock;
     string input_line;
     const float dur = 0.1f;
     const float freq = 175; // 175 for Evan's tactors
-    int vCycle = 500, hCycle = 250;
+    int cycleTime = 500;
     float tactorValues[] = {0.0, 0.0, 0.0, 0.0};
     ofstream outFile;
     outFile.open("dataOut.txt", ios::out);
@@ -69,46 +69,19 @@ int main(int argc, char const *argv[])
                 input_line.erase(0, commaPos + 1);
             }
         }
-        if(tactorValues[0] == tactorValues[1] == tactorValues[2] == tactorValues[3])
+        if (kbClock.get_elapsed_time() > mel::milliseconds(cycleTime))
         {
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
-                auto osc = std::make_shared<SquareWave>(freq, 0.1f);
+                float amp = 0.025f * sgn(tactorValues[i]);
+                auto osc = std::make_shared<SquareWave>(freq, amp);
                 auto cue = std::make_shared<Cue>(osc, dur);
-                tfx::playCue(0, cue);
+                tfx::playCue(i, cue);
             }
-        }
-        if (vClock.get_elapsed_time() > mel::milliseconds(vCycle))
-        {
-
-            float amp = 0.025f * sgn(tactorValues[0]);
-
-            auto osc = std::make_shared<SquareWave>(freq, amp);
-            auto cue = std::make_shared<Cue>(osc, dur);
-            tfx::playCue(0, cue);
-
-            amp = 0.025f * sgn(tactorValues[2]);
-            osc = std::make_shared<SquareWave>(freq, amp);
-            cue = std::make_shared<Cue>(osc, dur);
-            tfx::playCue(2, cue);
-
-            vClock.restart();
-            vCycle = (int)(100.0 * (0.5 / (tactorValues[0] + tactorValues[2])));
-        }
-        if (hClock.get_elapsed_time() > mel::milliseconds(hCycle))
-        {
-            float amp = 0.025f * sgn(tactorValues[1]);
-            auto osc = std::make_shared<SquareWave>(freq, amp);
-            auto cue = std::make_shared<Cue>(osc, dur);
-            tfx::playCue(1, cue);
-
-            amp = 0.025f * sgn(tactorValues[3]);
-            osc = std::make_shared<SquareWave>(freq, amp);
-            cue = std::make_shared<Cue>(osc, dur);
-            tfx::playCue(3, cue);
-
-            hClock.restart();
-            hCycle = (int)(100.0 * (0.5 / (tactorValues[1] + tactorValues[3])));
+            kbClock.restart();
+            float horizAverage = (tactorValues[0] + tactorValues[2]) / 2;
+            float vertAverage = (tactorValues[1] + tactorValues[3]) / 2;
+            cycleTime = (int)(100.0 * 0.5 / (horizAverage > vertAverage ? horizAverage : vertAverage));
         }
     }
     tfx::finalize();

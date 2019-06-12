@@ -8,7 +8,7 @@ public class arrowControl : MonoBehaviour
     public Text debugText;
     private GameObject targetCube;
     Vector3 targetPosition;
-    const float aThreshold = 0.2f, vertConstant = 0.1f, horiConstant = 0.1f;
+    const float aThreshold = 0.2f, vertConstant = 0.05f, horiConstant = 0.1f;
     float[] tactorValues = { 0.0f, 0.0f, 0.0f, 0.0f };
     float findAbsoluteAngleDifference(float angleStart, float angleEnd)
     {
@@ -54,6 +54,7 @@ public class arrowControl : MonoBehaviour
     {
         Vector3 diffVector;
         float vecMag, heading, strength;
+        bool horiReached = false;
         //find target cube and find difference
         targetCube = rendering.desCube;
         targetPosition = new Vector3(targetCube.transform.position.x, targetCube.transform.position.y, targetCube.transform.position.z);
@@ -85,12 +86,14 @@ public class arrowControl : MonoBehaviour
             else
             {
                 heading = transform.localEulerAngles.y;
-                if (heading > 355 || heading < 5)
+                if (heading > 350 || heading < 10)
                 {
-                    tactorValues[0] = tactorValues[2] = horiConstant * strength * 2;
+                    horiReached = true;
+                    tactorValues[0] = tactorValues[2] = 0;
                 }
                 else
                 {
+                    horiReached = false;
                     if (heading > 180)
                     {
                         tactorValues[0] = 0;
@@ -102,49 +105,56 @@ public class arrowControl : MonoBehaviour
                         tactorValues[2] = 0;
                     }
                 }
-                heading = transform.parent.rotation.y;
-                if (heading < 45 || heading > 315 || (heading < 225 && heading > 135))
+                if (horiReached)
                 {
-                    heading = transform.localEulerAngles.x;
-                    if (heading > 355 || heading < 5)
+                    heading = transform.parent.rotation.y;
+                    if (heading < 45 || heading > 315 || (heading < 225 && heading > 135))
                     {
-                        tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
-                    }
-                    else
-                    {
-                        if (heading > 180)
+                        heading = transform.localEulerAngles.x - 15;
+                        if (heading > 355 || heading < 5)
                         {
-                            tactorValues[1] = vertConstant * strength;
-                            tactorValues[3] = 0;
+                            tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
                         }
                         else
                         {
-                            tactorValues[1] = 0;
-                            tactorValues[3] = vertConstant * strength;
+                            if (heading > 180)
+                            {
+                                tactorValues[1] = vertConstant * strength;
+                                tactorValues[3] = 0;
+                            }
+                            else
+                            {
+                                tactorValues[1] = 0;
+                                tactorValues[3] = vertConstant * strength;
+                            }
                         }
+                    }
+                    else
+                    {
+                        heading = transform.localEulerAngles.z - 15;
+                        if (heading > 355 || heading < 5)
+                        {
+                            tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
+                        }
+                        else
+                        {
+                            if (heading > 180)
+                            {
+                                tactorValues[1] = vertConstant * strength;
+                                tactorValues[3] = 0;
+                            }
+                            else
+                            {
+                                tactorValues[1] = 0;
+                                tactorValues[3] = vertConstant * strength;
+                            }
+                        }
+
                     }
                 }
                 else
                 {
-                    heading = transform.localEulerAngles.z;
-                    if (heading > 355 || heading < 5)
-                    {
-                        tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
-                    }
-                    else
-                    {
-                        if (heading > 180)
-                        {
-                            tactorValues[1] = vertConstant * strength;
-                            tactorValues[3] = 0;
-                        }
-                        else
-                        {
-                            tactorValues[1] = 0;
-                            tactorValues[3] = vertConstant * strength;
-                        }
-                    }
-
+                    tactorValues[1] = tactorValues[3] = 0;
                 }
             }
             //send tactor values to computer
