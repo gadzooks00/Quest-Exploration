@@ -8,7 +8,7 @@ public class arrowControl : MonoBehaviour
     public Text debugText;
     private GameObject targetCube;
     Vector3 targetPosition;
-    const float aThreshold = 0.2f, vertConstant = 0.3f, horiConstant = 0.1f;
+    const float aThreshold = 0.2f, vertConstant = 0.1f, horiConstant = 0.1f;
     float[] tactorValues = { 0.0f, 0.0f, 0.0f, 0.0f };
     float findAbsoluteAngleDifference(float angleStart, float angleEnd)
     {
@@ -87,18 +87,18 @@ public class arrowControl : MonoBehaviour
                 heading = transform.localEulerAngles.y;
                 if (heading > 355 || heading < 5)
                 {
-                    tactorValues[0] = tactorValues[2] = vertConstant * strength * 2;
+                    tactorValues[0] = tactorValues[2] = horiConstant * strength * 2;
                 }
                 else
                 {
                     if (heading > 180)
                     {
                         tactorValues[0] = 0;
-                        tactorValues[2] = vertConstant * strength;
+                        tactorValues[2] = horiConstant * strength;
                     }
                     else
                     {
-                        tactorValues[0] = vertConstant * strength;
+                        tactorValues[0] = horiConstant * strength;
                         tactorValues[2] = 0;
                     }
                 }
@@ -108,19 +108,19 @@ public class arrowControl : MonoBehaviour
                     heading = transform.localEulerAngles.x;
                     if (heading > 355 || heading < 5)
                     {
-                        tactorValues[1] = tactorValues[3] = horiConstant * strength * 2;
+                        tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
                     }
                     else
                     {
                         if (heading > 180)
                         {
-                            tactorValues[1] = horiConstant * strength;
+                            tactorValues[1] = vertConstant * strength;
                             tactorValues[3] = 0;
                         }
                         else
                         {
                             tactorValues[1] = 0;
-                            tactorValues[3] = horiConstant * strength;
+                            tactorValues[3] = vertConstant * strength;
                         }
                     }
                 }
@@ -129,19 +129,19 @@ public class arrowControl : MonoBehaviour
                     heading = transform.localEulerAngles.z;
                     if (heading > 355 || heading < 5)
                     {
-                        tactorValues[1] = tactorValues[3] = horiConstant * strength * 2;
+                        tactorValues[1] = tactorValues[3] = vertConstant * strength * 2;
                     }
                     else
                     {
                         if (heading > 180)
                         {
-                            tactorValues[1] = 0;
-                            tactorValues[3] = horiConstant * strength;
+                            tactorValues[1] = vertConstant * strength;
+                            tactorValues[3] = 0;
                         }
                         else
                         {
-                            tactorValues[1] = horiConstant * strength;
-                            tactorValues[3] = 0;
+                            tactorValues[1] = 0;
+                            tactorValues[3] = vertConstant * strength;
                         }
                     }
 
