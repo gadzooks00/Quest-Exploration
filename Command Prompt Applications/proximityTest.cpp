@@ -26,6 +26,7 @@ using namespace tfx;
 using namespace std;
 
 string filterLog(string logLine);
+float sgn(float sgnNumber);
 
 int main(int argc, char const *argv[])
 {
@@ -69,16 +70,20 @@ int main(int argc, char const *argv[])
         }
         if (kbClock.get_elapsed_time() > mel::milliseconds(cycleTime))
         {
+            float avgValue = 0;
             for (int i = 0; i < 4; i++)
             {
                 float freq = 175; // 175 for Evan's tactors
-                float amp = 0.05f * tactorValues[i];
+                float amp = 0.05f * sgn(tactorValues[i]);
+                avgValue += tactorValues[i] != 0.0f ? tactorValues[i] : 0;
                 float dur = 0.1f;
                 auto osc = std::make_shared<SquareWave>(freq, amp);
                 auto cue = std::make_shared<Cue>(osc, dur);
                 tfx::playCue(i, cue);
             }
             kbClock.restart();
+            avgValue /= 4;
+            cycleTime = 500 * (1/avgValue);
         }
     }
     tfx::finalize();
@@ -94,4 +99,7 @@ string filterLog(string logLine)
         return logLine;
     }
     return "";
+}
+float sgn(float sgnNumber) {
+  return ( ( (sgnNumber) < 0 )  ?  -1   : ( (sgnNumber) > 0 ) );
 }
