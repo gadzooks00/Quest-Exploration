@@ -36,31 +36,31 @@ int main(int argc, char const *argv[])
     mel::print(info.index);
     mel::print(info.maxChannels);
 
-    mel::Clock kbClock;
+    mel::Clock vClock, hClock;
     string input_line;
 
-    int cycleTime = 500;
+    int vCycle = 500, hCycle = 500;
     float tactorValues[] = {0.0, 0.0, 0.0, 0.0};
     ofstream outFile;
     outFile.open("dataOut.txt", ios::out);
     while (!KB::is_key_pressed(Key::Escape))
     {
         getline(cin, input_line);
-        if(input_line.find("!!!") != string::npos)
+        if (input_line.find("!!!") != string::npos)
         {
-            input_line.erase(0,3);
-            for(int i = 0; i < 4; i++)
+            input_line.erase(0, 3);
+            for (int i = 0; i < 4; i++)
             {
                 tactorValues[i] = 0;
             }
             mel::print(input_line);
             outFile << input_line + "\n";
         }
-		input_line = filterLog(input_line);
+        input_line = filterLog(input_line);
         if (input_line.length() > 0)
         {
             mel::print(input_line);
-			outFile << input_line + "\n";
+            outFile << input_line + "\n";
             for (int i = 0; i < 4; i++)
             {
                 size_t commaPos = input_line.find(",");
@@ -68,22 +68,41 @@ int main(int argc, char const *argv[])
                 input_line.erase(0, commaPos + 1);
             }
         }
-        if (kbClock.get_elapsed_time() > mel::milliseconds(cycleTime))
+        if (vClock.get_elapsed_time() > mel::milliseconds(vCycle))
         {
-            float avgValue = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                float freq = 175; // 175 for Evan's tactors
-                float amp = 0.05f * sgn(tactorValues[i]);
-                avgValue += tactorValues[i] != 0.0f ? tactorValues[i] : 0;
-                float dur = 0.1f;
-                auto osc = std::make_shared<SquareWave>(freq, amp);
-                auto cue = std::make_shared<Cue>(osc, dur);
-                tfx::playCue(i, cue);
-            }
-            kbClock.restart();
-            avgValue /= 4;
-            cycleTime = 500 * (1/avgValue);
+            float freq = 175; // 175 for Evan's tactors
+            float amp = 0.05f * sgn(tactorValues[0]);
+            float dur = 0.1f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            tfx::playCue(0, cue);
+
+            float amp = 0.05f * sgn(tactorValues[2]);
+            float dur = 0.1f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            tfx::playCue(2, cue);
+
+            vClock.restart();
+            vCycle = (int)(100.0 * (0.5 / (tactorValues[0] + tactorValues[2])));
+        }
+        if (hClock.get_elapsed_time() > mel::milliseconds(hCycle))
+        {
+            float freq = 175; // 175 for Evan's tactors
+            float amp = 0.05f * sgn(tactorValues[1]);
+            float dur = 0.1f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            tfx::playCue(1, cue);
+
+            float amp = 0.05f * sgn(tactorValues[3]);
+            float dur = 0.1f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            tfx::playCue(3, cue);
+
+            hClock.restart();
+            hCycle = (int)(100.0 * (0.5 / (tactorValues[1] + tactorValues[3])));
         }
     }
     tfx::finalize();
@@ -100,6 +119,7 @@ string filterLog(string logLine)
     }
     return "";
 }
-float sgn(float sgnNumber) {
-  return ( ( (sgnNumber) < 0 )  ?  -1   : ( (sgnNumber) > 0 ) );
+float sgn(float sgnNumber)
+{
+    return (((sgnNumber) < 0) ? -1 : ((sgnNumber) > 0));
 }

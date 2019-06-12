@@ -135,13 +135,13 @@ public class arrowControl : MonoBehaviour
                     {
                         if (heading > 180)
                         {
-                            tactorValues[1] = horiConstant * strength;
-                            tactorValues[3] = 0;
+                            tactorValues[1] = 0;
+                            tactorValues[3] = horiConstant * strength;
                         }
                         else
                         {
-                            tactorValues[1] = 0;
-                            tactorValues[3] = horiConstant * strength;
+                            tactorValues[1] = horiConstant * strength;
+                            tactorValues[3] = 0;
                         }
                     }
 
