@@ -40,8 +40,14 @@ int main(int argc, char const *argv[])
     string input_line;
     const float dur = 0.1f;
     const float freq = 175; // 175 for Evan's tactors
+    const float a_time = 1.0f;
+    const float s_time = 1.0f;
+    const float r_time = 1.0f;
     int cycleTime = 500;
+    const int horizLookTime = 100;
     float tactorValues[] = {0.0, 0.0, 0.0, 0.0};
+    bool enableTactor[] = {true, true, true, true};
+    bool horizFound = false, vertFound = false;
     ofstream outFile;
     outFile.open("dataOut.txt", ios::out);
     while (!KB::is_key_pressed(Key::Escape))
@@ -69,19 +75,60 @@ int main(int argc, char const *argv[])
                 input_line.erase(0, commaPos + 1);
             }
         }
+        if (tactorValues[0] == 100 && tactorValues[2] == 100 && !horizFound)
+        {
+            kbClock.restart(); 
+            float amp = 0.4f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            while (kbClock.get_elapsed_time() < mel::milliseconds(horizLookTime))
+            {
+                tfx::playCue(0, cue);
+                tfx::playCue(2, cue);
+            }
+            horizFound = true;
+            enableTactor[0] = enableTactor[2] = false;
+        }
+        if(tactorValues[1] == 100 && tactorValues[3] == 100 && !vertFound)
+        {
+            kbClock.restart();
+            float amp = 0.4f;
+            auto osc = std::make_shared<SquareWave>(freq, amp);
+            auto cue = std::make_shared<Cue>(osc, dur);
+            while (kbClock.get_elapsed_time() < mel::milliseconds(horizLookTime))
+            {
+                tfx::playCue(1, cue);
+                tfx::playCue(3, cue);
+            }
+            vertFound = true;
+            enableTactor[1] = enableTactor[3] = false;
+        }
+        if(tactorValues[0] != 100 || tactorValues[2] != 100)
+        {
+            horizFound = false;
+        }
+        if(tactorValues[1] != 100 || tactorValues[3] != 100)
+        {
+            vertFound = false;
+        }
         if (kbClock.get_elapsed_time() > mel::milliseconds(cycleTime))
         {
+            float avg = 0;
             for (int i = 0; i < 4; i++)
             {
-                float amp = 0.025f * sgn(tactorValues[i]);
-                auto osc = std::make_shared<SquareWave>(freq, amp);
-                auto cue = std::make_shared<Cue>(osc, dur);
-                tfx::playCue(i, cue);
+                enableTactor[i] = tactorValues[i] != 100;
+                if (enableTactor[i])
+                {
+                    float amp = 0.04f * sgn(tactorValues[i]);
+                    auto osc = std::make_shared<SquareWave>(freq, amp);
+                    auto cue = std::make_shared<Cue>(osc, dur);
+                    tfx::playCue(i, cue);
+                    avg += tactorValues[i];
+                }
             }
+            avg /= 4;
             kbClock.restart();
-            float horizAverage = (tactorValues[0] + tactorValues[2]) / 2;
-            float vertAverage = (tactorValues[1] + tactorValues[3]) / 2;
-            cycleTime = (int)(100.0 * 0.5 / (horizAverage > vertAverage ? horizAverage : vertAverage));
+            cycleTime = (int)(10.0 / avg);
         }
     }
     tfx::finalize();
