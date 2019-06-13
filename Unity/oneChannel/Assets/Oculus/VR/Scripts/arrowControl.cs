@@ -8,7 +8,7 @@ public class arrowControl : MonoBehaviour
     public Text debugText;
     private GameObject targetCube;
     Vector3 targetPosition;
-    const float aThreshold = 0.2f, vertConstant = 0.05f, horiConstant = 0.1f;
+    const float aThreshold = 0.2f, vertConstant = 0.1f, horiConstant = 0.1f;
     float[] tactorValues = { 0.0f, 0.0f, 0.0f, 0.0f };
     float findAbsoluteAngleDifference(float angleStart, float angleEnd)
     {
@@ -70,123 +70,31 @@ public class arrowControl : MonoBehaviour
         transform.Translate(Vector3.forward / 10);
 
         //calculate desired tactor values
-        if (Options.enableVibrotactorFeedback)
+        if (!Options.twoChannelMode) // ONE CHANNEL HAPTIC CONDITION
         {
-            if (!Options.twoChannelMode) // ONE CHANNEL HAPTIC CONDITION
+            if (Options.enableActiveButton && OVRInput.Get(OVRInput.Button.Two))
             {
-                if (Options.enableActiveButton && OVRInput.Get(OVRInput.Button.Two))
+                heading = transform.localEulerAngles.y;
+                if (heading > 345 || heading < 15)
                 {
-                    heading = transform.localEulerAngles.y;
-                    if (heading > 345 || heading < 15)
-                    {
-                        horiReached = true;
-                        tactorValues[0] = tactorValues[2] = 100;
-                    }
-                    else
-                    {
-                        horiReached = false;
-                        if (heading > 180)
-                        {
-                            tactorValues[0] = 0;
-                            tactorValues[2] = horiConstant * strength;
-                        }
-                        else
-                        {
-                            tactorValues[0] = horiConstant * strength;
-                            tactorValues[2] = 0;
-                        }
-                    }
-                    if (horiReached)
-                    {
-                        heading = transform.parent.rotation.y;
-                        if (heading < 45 || heading > 315 || (heading < 225 && heading > 135))
-                        {
-                            heading = transform.localEulerAngles.x;
-                            if (heading > 350 || heading < 10)
-                            {
-                                tactorValues[1] = tactorValues[3] = 100;
-                            }
-                            else
-                            {
-                                if (heading > 180)
-                                {
-                                    tactorValues[1] = 0;
-                                    tactorValues[3] = vertConstant * strength;
-                                }
-                                else
-                                {
-                                    tactorValues[1] = vertConstant * strength;
-                                    tactorValues[3] = 0;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            heading = transform.localEulerAngles.z;
-                            if (heading > 350 || heading < 10)
-                            {
-                                tactorValues[1] = tactorValues[3] = 100;
-                            }
-                            else
-                            {
-                                if (heading > 180)
-                                {
-                                    tactorValues[1] = 0;
-                                    tactorValues[3] = vertConstant * strength;
-                                }
-                                else
-                                {
-                                    tactorValues[1] = vertConstant * strength;
-                                    tactorValues[3] = 0;
-                                }
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        tactorValues[1] = tactorValues[3] = 0;
-                    }
+                    horiReached = true;
+                    tactorValues[0] = tactorValues[2] = 100;
                 }
                 else
                 {
-                    if (vecMag < Options.correctDistance)
+                    horiReached = false;
+                    if (heading > 180)
                     {
-                        tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 1;
+                        tactorValues[0] = 0;
+                        tactorValues[2] = horiConstant * strength;
                     }
                     else
                     {
-                        tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0.1f;
-                    }
-
-                }
-            }
-            else // TWO CHANNEL HAPTIC CONDITION
-            {
-                tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0;
-                if (OVRInput.Get(OVRInput.Button.Three))
-                {
-                    heading = transform.localEulerAngles.y;
-                    if (heading > 345 || heading < 15)
-                    {
-                        tactorValues[0] = tactorValues[2] = 0.1f;
-                    }
-                    else
-                    {
-                        horiReached = false;
-                        if (heading > 180)
-                        {
-                            tactorValues[0] = 0;
-                            tactorValues[2] = horiConstant * strength;
-                        }
-                        else
-                        {
-                            tactorValues[0] = horiConstant * strength;
-                            tactorValues[2] = 0;
-                        }
+                        tactorValues[0] = horiConstant * strength;
+                        tactorValues[2] = 0;
                     }
                 }
-                if (OVRInput.Get(OVRInput.Button.Four))
+                if (horiReached)
                 {
                     heading = transform.parent.rotation.y;
                     if (heading < 45 || heading > 315 || (heading < 225 && heading > 135))
@@ -194,7 +102,7 @@ public class arrowControl : MonoBehaviour
                         heading = transform.localEulerAngles.x;
                         if (heading > 350 || heading < 10)
                         {
-                            tactorValues[1] = tactorValues[3] = 0.1f;
+                            tactorValues[1] = tactorValues[3] = 100;
                         }
                         else
                         {
@@ -215,7 +123,7 @@ public class arrowControl : MonoBehaviour
                         heading = transform.localEulerAngles.z;
                         if (heading > 350 || heading < 10)
                         {
-                            tactorValues[1] = tactorValues[3] = 0.1f;
+                            tactorValues[1] = tactorValues[3] = 100;
                         }
                         else
                         {
@@ -233,9 +141,102 @@ public class arrowControl : MonoBehaviour
 
                     }
                 }
-                //send tactor values to computer
-                Debug.Log("***" + tactorValues[0] + "," + tactorValues[1] + "," + tactorValues[2] + "," + tactorValues[3]);
+                else
+                {
+                    tactorValues[1] = tactorValues[3] = 0;
+                }
             }
+            else
+            {
+                if (vecMag < Options.correctDistance)
+                {
+                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 1;
+                }
+                else
+                {
+                    tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0.1f;
+                }
+
+            }
+        }
+        else // TWO CHANNEL HAPTIC CONDITION
+        {
+            tactorValues[0] = tactorValues[1] = tactorValues[2] = tactorValues[3] = 0;
+            if (OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger) > 0.5)
+            {
+                heading = transform.localEulerAngles.y;
+                if (heading > 345 || heading < 15)
+                {
+                    tactorValues[0] = tactorValues[2] = 0.4f;
+                }
+                else
+                {
+                    horiReached = false;
+                    if (heading > 180)
+                    {
+                        tactorValues[0] = 0;
+                        tactorValues[2] = horiConstant * strength;
+                    }
+                    else
+                    {
+                        tactorValues[0] = horiConstant * strength;
+                        tactorValues[2] = 0;
+                    }
+                }
+            }
+            if (OVRInput.Get(OVRInput.RawAxis1D.RHandTrigger) > 0.5)
+            {
+                heading = transform.parent.rotation.y;
+                if (heading < 45 || heading > 315 || (heading < 225 && heading > 135))
+                {
+                    heading = transform.localEulerAngles.x;
+                    if (heading > 350 || heading < 10)
+                    {
+                        tactorValues[1] = tactorValues[3] = 0.4f;
+                    }
+                    else
+                    {
+                        if (heading > 180)
+                        {
+                            tactorValues[1] = 0;
+                            tactorValues[3] = vertConstant * strength;
+                        }
+                        else
+                        {
+                            tactorValues[1] = vertConstant * strength;
+                            tactorValues[3] = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    heading = transform.localEulerAngles.z;
+                    if (heading > 350 || heading < 10)
+                    {
+                        tactorValues[1] = tactorValues[3] = 0.1f;
+                    }
+                    else
+                    {
+                        if (heading > 180)
+                        {
+                            tactorValues[1] = 0;
+                            tactorValues[3] = vertConstant * strength;
+                        }
+                        else
+                        {
+                            tactorValues[1] = vertConstant * strength;
+                            tactorValues[3] = 0;
+                        }
+                    }
+
+                }
+            }
+
+        }
+        if (Options.enableVibrotactorFeedback)
+        {
+            //send tactor values to computer
+            Debug.Log("***" + tactorValues[0] + "," + tactorValues[1] + "," + tactorValues[2] + "," + tactorValues[3]);
         }
         if (Options.enableGuideArrow)
         {
@@ -247,58 +248,18 @@ public class arrowControl : MonoBehaviour
             {
                 transform.localScale = new Vector3(1, 1, 1);
             }
+            
+            transform.position = transform.parent.position;
+            transform.rotation = transform.parent.rotation;
             if (Options.mobileGuideArrow)
             {
-                float pHeading = transform.parent.rotation.y;
-                heading = transform.localEulerAngles.y;
-                if (pHeading < 45 || pHeading > 315 || (pHeading < 225 && pHeading > 135))
+                if (tactorValues[0] == tactorValues[2])
                 {
-                    pHeading = transform.localEulerAngles.x;
-                    transform.position = transform.parent.position;
-                    if (pHeading > 350 || pHeading < 10)
-                    {
-                        transform.Translate(Vector3.forward / 5);
-                    }
-                    else
-                    {
-                        if (pHeading > 180)
-                        {
-                            transform.Translate(Vector3.up / 10);
-                        }
-                        else
-                        {
-                            transform.Translate(Vector3.down / 10);
-                        }
-                    }
+                    transform.Translate(Vector3.forward / 20);
                 }
                 else
                 {
-                    pHeading = transform.localEulerAngles.z;
-                    if (pHeading > 350 || pHeading < 10)
-                    {
-                        transform.Translate(Vector3.forward / 5);
-                    }
-                    else
-                    {
-                        if (pHeading > 180)
-                        {
-                            transform.Translate(Vector3.up / 10);
-                        }
-                        else
-                        {
-                            transform.Translate(Vector3.down / 10);
-                        }
-                    }
-
-                }
-                if (heading > 345 || heading < 15)
-                {
-                    transform.Translate(Vector3.forward / 5);
-                }
-                else
-                {
-                    horiReached = false;
-                    if (heading > 180)
+                    if (tactorValues[0] > 0)
                     {
                         transform.Translate(Vector3.right / 10);
                     }
@@ -307,13 +268,27 @@ public class arrowControl : MonoBehaviour
                         transform.Translate(Vector3.left / 10);
                     }
                 }
+                if (tactorValues[1] == tactorValues[3])
+                {
+                    transform.Translate(Vector3.forward / 20);
+                }
+                else
+                {
+                    if (tactorValues[1] > 0)
+                    {
+                        transform.Translate(Vector3.down / 10);
+                    }
+                    else
+                    {
+                        transform.Translate(Vector3.up / 10);
+                    }
+                }
             }
             else
             {
-                transform.position = transform.parent.position;
-                transform.rotation = transform.parent.rotation;
                 transform.Translate(Vector3.forward / 10);
             }
         }
+        Debug.Log("Position: " + transform.parent.position);
     }
 }

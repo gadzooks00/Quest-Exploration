@@ -18,11 +18,18 @@ public class rendering : MonoBehaviour
         desCube.tag = "TargetCube";
     }
     void Start()
-    {      
+    {
+        Debug.Log("!!!Settings" + "enableGuideArrow = " + Options.enableGuideArrow +
+                " mobileGuideArrow = " + Options.mobileGuideArrow +
+                " guideArrowProportionalSize = " + Options.guideArrowProportionalSize +
+                " enableActiveButton = " + Options.enableActiveButton +
+                " twoChannelMode = " + Options.twoChannelMode +
+                " enableVibrotactorFeedback = " + Options.enableVibrotactorFeedback +
+                " enableWrongCube = " + Options.enableWrongCube);
         changedThisPress = false;
         oShelves = GameObject.Find("Shelves");
         oShelves.SetActive(false);
-        isActiveState = false;        
+        isActiveState = false;
         guideArrow = GameObject.Find("GuideArrow");
         guideArrow.SetActive(false);
     }
@@ -30,9 +37,9 @@ public class rendering : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(OVRInput.Get(OVRInput.Button.One) && !changedThisPress)
+        if (OVRInput.Get(OVRInput.Button.One) && !changedThisPress)
         {
-            if(!isActiveState)
+            if (!isActiveState)
             {
                 oShelves.SetActive(true);
                 timeStart = Time.fixedTime;
@@ -49,11 +56,11 @@ public class rendering : MonoBehaviour
                 isActiveState = false;
             }
         }
-        else if(!OVRInput.Get(OVRInput.Button.One))
+        else if (!OVRInput.Get(OVRInput.Button.One))
         {
             changedThisPress = false;
         }
-        if(cubeFound && isActiveState == true)
+        if (cubeFound && isActiveState == true)
         {
             oShelves.SetActive(false);
             guideArrow.SetActive(false);
